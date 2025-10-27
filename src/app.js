@@ -6,6 +6,7 @@ dotenv.config();
 
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
+const authRoutes = require("./routes/authRoutes")
 // const matchRoutes = require("./routes/matchRoutes");
 // const predictionRoutes = require("./routes/predictionRoutes");
 const { errorHandler } = require("./middlewares/errorHandler");
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/users", userRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/auth", authRoutes);
 // app.use("/api/matches", matchRoutes);
 // app.use("/api/predictions", predictionRoutes);
 
