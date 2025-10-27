@@ -1,0 +1,17 @@
+
+services:
+  db:
+    image: postgres:latest
+    container_name: tennis_pronos_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tennis_pronos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

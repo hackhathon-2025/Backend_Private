@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgres"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -23,7 +23,7 @@ model Group {
   id        String     @id @default(uuid())
   name      String
   isPublic  Boolean  @default(true)
-  ownerId   Int
+  ownerId   String
   createdAt DateTime @default(now())
 
   owner       User         @relation("GroupOwner", fields: [ownerId], references: [id])
@@ -33,8 +33,8 @@ model Group {
 
 model GroupMember {
   id      Int   @id @default(autoincrement())
-  userId  Int
-  groupId Int
+  userId  String
+  groupId String
 
   user  User  @relation(fields: [userId], references: [id])
   group Group @relation(fields: [groupId], references: [id])
@@ -54,9 +54,9 @@ model Match {
 
 model Prediction {
   id        String      @id @default(uuid())
-  userId    Int
-  groupId   Int
-  matchId   Int
+  userId    String
+  groupId   String
+  matchId   String
   winner    String
   createdAt DateTime @default(now())
 
