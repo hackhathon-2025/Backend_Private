@@ -1,9 +1,10 @@
 const express = require("express");
-const { getAllMatchs, getIDMatchs } = require("../controllers/matchController");
+const { getAllMatchs, getIDMatchs, getMatchsComp } = require("../controllers/matchController");
 
 const router = express.Router();
 
 router.get("/", getAllMatchs);
-router.get("/:id", getIDMatchs);
+router.get("/match/:id", getIDMatchs);
+router.get("/comp/:id", getMatchsComp);
 
 module.exports = router;

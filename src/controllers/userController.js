@@ -32,6 +32,27 @@ const getUserById = async (req, res) => {
     }
 };
 
+const getMyUser = async (req, res) => {
+    try {
+        const id = req.userId;
+        console.log("User ID from token:", id);
+
+        const user = await prisma.user.findUnique({
+            where: { id },
+        });
+
+        if (!user) {
+            console.log("User not found in database for ID:", id);
+            return res.status(404).json({ error: `User not found: ${id}` });
+        }
+        const { password, ...safeUser } = user;
+        res.json(safeUser);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 const getUserByEmail = async (req, res) => {
     try {
         const { email } = req.params;
@@ -67,4 +88,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { createUser, getAllUsers, getUserById, updateUser, deleteUser, getUserByEmail };
+module.exports = { createUser, getAllUsers, getUserById, updateUser, deleteUser, getUserByEmail, getMyUser };

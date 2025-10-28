@@ -11,7 +11,7 @@ const competitionRoutes = require("./routes/competitionRoutes")
 const matchRoutes = require("./routes/matchRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 const playerRoutes = require("./routes/playerRoutes");
-// const predictionRoutes = require("./routes/predictionRoutes");
+const predictionRoutes = require("./routes/predictionRoutes");
 const { errorHandler } = require("./middlewares/errorHandler");
 
 const app = express();
@@ -27,8 +27,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/competitions", competitionRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/results", resultRoutes);
-app.use("/api/players", playerRoutes)
-// app.use("/api/predictions", predictionRoutes);
+app.use("/api/players", playerRoutes);
+app.use("/api/predictions", predictionRoutes);
 
 app.use(errorHandler);
 

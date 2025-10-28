@@ -21,4 +21,15 @@ const getIDMatchs = async (req, res) => {
     }
 };
 
-module.exports = { getAllMatchs, getIDMatchs };
+const getMatchsComp = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await axios.get(`https://tennis-api-externe.onrender.com/api/matches?competitionId=${id}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error("Erreur API externe:", error.message);
+        res.status(500).json({ error: "Impossible de récupérer les matchs" });
+    }
+};
+
+module.exports = { getAllMatchs, getIDMatchs, getMatchsComp };
