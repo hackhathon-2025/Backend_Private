@@ -1,23 +1,48 @@
-// controllers/groupController.js
 const prisma = require("../config/prisma");
-// If you have auth, prefer: const authUserId = req.user.id;
 
 const createGroup = async (req, res) => {
-    try {
-        const { name, isPublic, description = true } = req.body;
-        const ownerId = req.userId // fallback if no auth yet
+  try {
+    // name, isPublic, description, competitionId arrivent du body
+    const { name, isPublic, description, competitionId } = req.body;
 
-        // if (!name || !ownerId) return res.status(400).json({ error: "name and ownerId are required" });
+    // récupère l'ID depuis le middleware d'auth
+    const ownerId = req.user?.id || req.userId; // compat si tu mettais req.userId avant
+    if (!ownerId) return res.status(401).json({ error: "No token provided" });
+    if (!name) return res.status(400).json({ error: "name is required" });
 
-        const group = await prisma.group.create({
-            data: { name, isPublic: Boolean(isPublic), owner: { connect: { id: ownerId } }, description },
-            select: { id: true, name: true, isPublic: true, ownerId: true, description: true }
-        });
+    // description est non-nullable dans le schéma
+    const desc = typeof description === "string" ? description : "";
 
-        res.status(201).json(group);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    const group = await prisma.group.create({
+      data: {
+        name,
+        description: desc,
+        isPublic: Boolean(isPublic),
+        competitionId: Number.isFinite(Number(competitionId)) ? Number(competitionId) : 0,
+        owner: { connect: { id: ownerId } },
+        // ajoute le propriétaire comme membre
+        members: {
+          create: { userId: ownerId },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        isPublic: true,
+        competitionId: true,
+        ownerId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return res.status(201).json(group);
+  } catch (error) {
+    // Conflits/violations Prisma etc.
+    const code = error?.code;
+    return res.status(500).json({ error: error.message, code });
+  }
 };
 
 const getMyGroups = async (req, res) => {
