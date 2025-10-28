@@ -4,14 +4,14 @@ const prisma = require("../config/prisma");
 
 const createGroup = async (req, res) => {
     try {
-        const { name, isPublic = true } = req.body;
-        const ownerId = req.user?.id ?? req.body.ownerId; // fallback if no auth yet
+        const { name, isPublic, description = true } = req.body;
+        const ownerId = req.userId // fallback if no auth yet
 
         // if (!name || !ownerId) return res.status(400).json({ error: "name and ownerId are required" });
 
         const group = await prisma.group.create({
-            data: { name, isPublic: Boolean(isPublic), owner: { connect: { id: ownerId } } },
-            select: { id: true, name: true, isPublic: true, ownerId: true }
+            data: { name, isPublic: Boolean(isPublic), owner: { connect: { id: ownerId } }, description },
+            select: { id: true, name: true, isPublic: true, ownerId: true, description: true }
         });
 
         res.status(201).json(group);
@@ -19,6 +19,18 @@ const createGroup = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+const getMyGroups = async (req, res) => {
+    try {
+        const ownerId = req.userId;
+        const groups = await prisma.group.findMany({ where: { ownerId } });
+        if (!groups) return res.status(404).json({ error: "Groups not found" });
+        res.status(200).json(groups);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+
+}
 
 const getPublicGroups = async (req, res) => {
     try {
@@ -29,7 +41,7 @@ const getPublicGroups = async (req, res) => {
             prisma.group.findMany({
                 where: { isPublic: true },
                 select: {
-                    id: true, name: true, isPublic: true,
+                    id: true, name: true, isPublic: true, description: true,
                     owner: { select: { id: true, username: true } }
                 },
                 orderBy: { name: "asc" },
@@ -156,36 +168,36 @@ const banUser = async (req, res) => {
 };
 
 const getGroupMembers = async (req, res) => {
-  try {
-    const { groupId } = req.params;
+    try {
+        const { groupId } = req.params;
 
-    const group = await prisma.group.findUnique({
-      where: { id: groupId },
-      select: {
-        id: true,
-        name: true,
-        members: {
-          select: {
-            id: true,
-            user: { select: { id: true, username: true, email: true } }
-          }
-        }
-      }
-    });
+        const group = await prisma.group.findUnique({
+            where: { id: groupId },
+            select: {
+                id: true,
+                name: true,
+                members: {
+                    select: {
+                        id: true,
+                        user: { select: { id: true, username: true, email: true } }
+                    }
+                }
+            }
+        });
 
-    if (!group) return res.status(404).json({ error: "Group not found" });
+        if (!group) return res.status(404).json({ error: "Group not found" });
 
-    // normalisation : renvoyer juste une liste de users
-    const members = group.members.map(m => ({
-      id: m.user.id,
-      username: m.user.username,
-      email: m.user.email
-    }));
+        // normalisation : renvoyer juste une liste de users
+        const members = group.members.map(m => ({
+            id: m.user.id,
+            username: m.user.username,
+            email: m.user.email
+        }));
 
-    res.json({ groupId: group.id, name: group.name, members });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+        res.json({ groupId: group.id, name: group.name, members });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
 module.exports = {
@@ -196,4 +208,5 @@ module.exports = {
     inviteUser,
     banUser,
     getGroupMembers,
+    getMyGroups,
 };
