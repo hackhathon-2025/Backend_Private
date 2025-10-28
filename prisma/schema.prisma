@@ -18,6 +18,8 @@ model User {
   groups      GroupMember[]
   predictions Prediction[]
   ownedGroups Group[]       @relation("GroupOwner")
+  bans        BannedUser[]  @relation("BannedUsers")
+  bannedUsers BannedUser[]  @relation("BannedBy")
 
   @@index([username])
   @@index([email])
@@ -31,16 +33,19 @@ model Group {
   ownerId     String
   competitionId Int         @default(0)
   scoringRule  String      @default("standard")
+  inviteCode  String?       @unique
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   owner       User          @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   members     GroupMember[]
   predictions Prediction[]
+  bannedUsers BannedUser[]  @relation("BannedUsers")
 
   @@index([isPublic])
   @@index([ownerId])
   @@index([name])
+  @@index([inviteCode])
 }
 
 model GroupMember {
@@ -53,19 +58,38 @@ model GroupMember {
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@unique([groupId, userId]) 
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@index([groupId])
+}
+
+model BannedUser {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  groupId   String
+  bannedAt  DateTime @default(now())
+  bannedBy  String
+
+  user  User  @relation("BannedUsers", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  group Group @relation("BannedUsers", fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  banner User @relation("BannedBy", fields: [bannedBy], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([groupId, userId])
   @@index([userId])
   @@index([groupId])
 }
 
 model Prediction {
-  id        String   @id @default(uuid())
-  userId    String
-  groupId   String
-  matchId   Int
-  winnerId  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  userId              String
+  groupId             String
+  matchId             Int
+  winnerId            Int?
+  predictedHomeScore  Int
+  predictedAwayScore  Int
+  pointsEarned        Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)

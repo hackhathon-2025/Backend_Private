@@ -2,6 +2,7 @@ const express = require("express");
 const {
     createPrediction,
     getMyPredictions,
+    getPredictionsByGroup,
     updatePrediction,
     deletePrediction,
 } = require("../controllers/predictionController");
@@ -13,6 +14,7 @@ const router = express.Router();
 router.use(authMiddleware);
 router.post("/", createPrediction);
 router.get("/", getMyPredictions);
+router.get("/group/:groupId", getPredictionsByGroup);
 router.put("/:id", updatePrediction);
 router.delete("/:id", deletePrediction);
 
