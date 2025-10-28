@@ -35,7 +35,7 @@ const getUserById = async (req, res) => {
 const getMyUser = async (req, res) => {
     try {
         const id = req.userId;
-        console.log("User ID from token:", id);
+        // console.log("User ID from token:", id);
 
         const user = await prisma.user.findUnique({
             where: { id },

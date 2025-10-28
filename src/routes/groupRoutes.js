@@ -8,12 +8,14 @@ const {
 	inviteUser,
 	banUser,
 	getGroupMembers,
+	getMyGroups,
 } = require("../controllers/groupController");
 
 const router = express.Router();
 
 router.post("/", authMiddleware, createGroup);
 router.get("/", getPublicGroups);
+router.get("/me", authMiddleware, getMyGroups);
 
 // Member management
 router.post("/:groupId/join", authMiddleware, joinGroup);
