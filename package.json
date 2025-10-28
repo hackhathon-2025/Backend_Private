@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node src/server.js"
+    "dev": "node src/server.js",
+    "postinstall": "prisma generate && prisma db push",
+    "seed": "node prisma/seed.js"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.4",
-    "prisma": "^6.18.0"
+    "prisma": "^6.18.0",
+    "@faker-js/faker": "^8.4.1"
   }
 }

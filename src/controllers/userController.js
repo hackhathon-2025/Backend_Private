@@ -1,4 +1,5 @@
 const prisma = require("../config/prisma");
+const bcrypt = require("bcryptjs");
 
 const createUser = async (req, res) => {
     try {
@@ -35,7 +36,6 @@ const getUserById = async (req, res) => {
 const getMyUser = async (req, res) => {
     try {
         const id = req.userId;
-        // console.log("User ID from token:", id);
 
         const user = await prisma.user.findUnique({
             where: { id },
@@ -48,7 +48,6 @@ const getMyUser = async (req, res) => {
         const { password, ...safeUser } = user;
         res.json(safeUser);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -78,6 +77,28 @@ const updateUser = async (req, res) => {
     }
 };
 
+const updatePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        const user = await prisma.user.findUnique({ where: { id: req.userId } });
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: { id: req.userId },
+            data: { password: hashedPassword },
+        });
+
+        res.json({ message: "Password updated" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -88,4 +109,4 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { createUser, getAllUsers, getUserById, updateUser, deleteUser, getUserByEmail, getMyUser };
+module.exports = { createUser, getAllUsers, getUserById, updateUser, deleteUser, getUserByEmail, getMyUser, updatePassword };
