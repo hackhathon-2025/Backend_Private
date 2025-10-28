@@ -1,6 +1,16 @@
-const app = require("./app");
-const PORT = process.env.PORT || 3000;
+const express = require('express');
+const cors = require('cors');
 
-app.listen(PORT, () => {
-  console.log(`✅ Backend running on port ${PORT}`);
-});
+const app = express();
+app.use(express.json());
+
+app.use(cors({
+  origin: ['https://frontend-hackaton-2025.vercel.app'],
+  credentials: true
+}));
+
+// Healthcheck
+app.get('/api/health', (req, res) => res.status(200).json({ ok: true }));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`API up on ${PORT}`));
