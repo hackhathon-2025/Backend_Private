@@ -7,7 +7,7 @@ const createGroup = async (req, res) => {
     const { name, isPublic = true } = req.body;
     const ownerId = req.user?.id ?? req.body.ownerId; // fallback if no auth yet
 
-    if (!name || !ownerId) return res.status(400).json({ error: "name and ownerId are required" });
+    // if (!name || !ownerId) return res.status(400).json({ error: "name and ownerId are required" });
 
     const group = await prisma.group.create({
       data: { name, isPublic: Boolean(isPublic), owner: { connect: { id: ownerId } } },

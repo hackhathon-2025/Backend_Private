@@ -26,4 +26,10 @@ app.use("/api/auth", authRoutes);
 
 app.use(errorHandler);
 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🎾 Tennis Pronostics Backend is listening on http://localhost:${PORT}`);
+});
+
+
 module.exports = app;
