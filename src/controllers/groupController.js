@@ -1,17 +1,18 @@
-// controllers/groupController.js
 const prisma = require("../config/prisma");
-// If you have auth, prefer: const authUserId = req.user.id;
 
 const createGroup = async (req, res) => {
+    console.log(req.body)
     try {
-        const { name, isPublic, description = true } = req.body;
-        const ownerId = req.userId // fallback if no auth yet
-
-        // if (!name || !ownerId) return res.status(400).json({ error: "name and ownerId are required" });
-
+        const { name, description, ownerId, isPublic, competitionId, scoringRules } = req.body;
         const group = await prisma.group.create({
-            data: { name, isPublic: Boolean(isPublic), owner: { connect: { id: ownerId } }, description },
-            select: { id: true, name: true, isPublic: true, ownerId: true, description: true }
+            data: {
+                name,
+                description,
+                isPublic,
+                ownerId,
+                competitionId,
+                scoringRule: JSON.stringify(scoringRules),
+            }
         });
 
         res.status(201).json(group);

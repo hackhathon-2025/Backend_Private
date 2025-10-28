@@ -1,4 +1,6 @@
 npm i
+docker compose up -d
+npx prisma migrate reset --force
 npx prisma migrate dev --name init
 npm run seed
 npm run dev

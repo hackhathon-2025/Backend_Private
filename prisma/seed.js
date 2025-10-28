@@ -36,6 +36,7 @@ async function main() {
         name: faker.lorem.words(2),
         isPublic: faker.datatype.boolean(),
         ownerId: owner.id,
+        description: faker.lorem.sentence(),
       },
     });
     groups.push(group);

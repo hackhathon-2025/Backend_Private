@@ -12,7 +12,6 @@ model User {
   username    String        @unique
   email       String        @unique
   password    String
-  punto       Int           @default(0)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -31,6 +30,7 @@ model Group {
   isPublic    Boolean       @default(true)
   ownerId     String
   competitionId Int         @default(0)
+  scoringRule  String      @default("standard")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -44,15 +44,16 @@ model Group {
 }
 
 model GroupMember {
-  id       Int     @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   userId   String
   groupId  String
+  points   Int      @default(0)
   joinedAt DateTime @default(now())
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@unique([groupId, userId]) // prevents duplicate membership
+  @@unique([groupId, userId]) 
   @@index([userId])
   @@index([groupId])
 }
