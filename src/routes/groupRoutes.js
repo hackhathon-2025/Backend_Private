@@ -1,4 +1,5 @@
 const express = require("express");
+const authMiddleware = require("../middlewares/authMiddleware");
 const {
 	createGroup,
 	getPublicGroups,
@@ -11,14 +12,14 @@ const {
 
 const router = express.Router();
 
-router.post("/", createGroup);
+router.post("/", authMiddleware, createGroup);
 router.get("/", getPublicGroups);
 
 // Member management
-router.post("/:groupId/join", joinGroup);
-router.post("/:groupId/leave", leaveGroup);
-router.post("/:groupId/invite", inviteUser);
-router.post("/:groupId/ban", banUser);
+router.post("/:groupId/join", authMiddleware, joinGroup);
+router.post("/:groupId/leave", authMiddleware, leaveGroup);
+router.post("/:groupId/invite", authMiddleware, inviteUser);
+router.post("/:groupId/ban", authMiddleware, banUser);
 router.get("/:groupId/members", getGroupMembers);
 
 module.exports = router;

@@ -65,8 +65,6 @@ model Match {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  predictions Prediction[]
-
   @@index([startTime])
   @@index([competition, startTime])
 }
@@ -75,14 +73,13 @@ model Prediction {
   id        String   @id @default(uuid())
   userId    String
   groupId   String
-  matchId   String
-  winner    String
+  matchId   Int
+  winnerId  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   // One prediction per user per match inside a specific group
   @@unique([userId, groupId, matchId])
