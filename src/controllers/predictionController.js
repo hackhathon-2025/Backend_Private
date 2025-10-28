@@ -3,24 +3,18 @@ const prisma = require("../config/prisma");
 const createPrediction = async (req, res) => {
     try {
         const userId = req.userId;
-        const { matchId, groupId, predictedHomeScore, predictedAwayScore } = req.body;
+        const { matchId, groupId, winnerId } = req.body;
 
-        if (!matchId || !groupId || predictedHomeScore === undefined || predictedAwayScore === undefined) {
-            return res.status(400).json({ error: "matchId, groupId, predictedHomeScore et predictedAwayScore sont requis." });
+        if (!matchId || !groupId || winnerId === undefined) {
+            return res.status(400).json({ error: "matchId, groupId et winnerId sont requis." });
         }
-
-        // Determine the winner based on scores
-        const winnerId = predictedHomeScore > predictedAwayScore ? 1 :
-                        predictedAwayScore > predictedHomeScore ? 2 : 0; // 0 for draw
 
         const prediction = await prisma.prediction.create({
             data: {
                 userId,
-                matchId,
+                matchId: parseInt(matchId),
                 groupId,
-                winnerId,
-                predictedHomeScore: parseInt(predictedHomeScore),
-                predictedAwayScore: parseInt(predictedAwayScore),
+                winnerId: parseInt(winnerId),
             },
         });
 
@@ -68,23 +62,21 @@ const updatePrediction = async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
-        const { predictedHomeScore, predictedAwayScore } = req.body;
+        const { winnerId } = req.body;
+
+        if (winnerId === undefined) {
+            return res.status(400).json({ error: "winnerId est requis." });
+        }
 
         const existing = await prisma.prediction.findUnique({ where: { id } });
         if (!existing || existing.userId !== userId) {
             return res.status(403).json({ error: "Accès refusé ou prédiction introuvable" });
         }
 
-        // Determine the winner based on scores
-        const winnerId = predictedHomeScore > predictedAwayScore ? 1 :
-                        predictedAwayScore > predictedHomeScore ? 2 : 0; // 0 for draw
-
         const updated = await prisma.prediction.update({
             where: { id },
             data: {
-                predictedHomeScore: parseInt(predictedHomeScore),
-                predictedAwayScore: parseInt(predictedAwayScore),
-                winnerId,
+                winnerId: parseInt(winnerId),
             },
         });
 
