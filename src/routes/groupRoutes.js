@@ -6,6 +6,7 @@ const {
 	leaveGroup,
 	inviteUser,
 	banUser,
+	getGroupMembers,
 } = require("../controllers/groupController");
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.post("/:groupId/join", joinGroup);
 router.post("/:groupId/leave", leaveGroup);
 router.post("/:groupId/invite", inviteUser);
 router.post("/:groupId/ban", banUser);
+router.get("/:groupId/members", getGroupMembers);
 
 module.exports = router;

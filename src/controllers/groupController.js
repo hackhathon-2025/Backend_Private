@@ -155,6 +155,39 @@ const banUser = async (req, res) => {
     }
 };
 
+const getGroupMembers = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: {
+        id: true,
+        name: true,
+        members: {
+          select: {
+            id: true,
+            user: { select: { id: true, username: true, email: true } }
+          }
+        }
+      }
+    });
+
+    if (!group) return res.status(404).json({ error: "Group not found" });
+
+    // normalisation : renvoyer juste une liste de users
+    const members = group.members.map(m => ({
+      id: m.user.id,
+      username: m.user.username,
+      email: m.user.email
+    }));
+
+    res.json({ groupId: group.id, name: group.name, members });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
     createGroup,
     getPublicGroups,
@@ -162,4 +195,5 @@ module.exports = {
     leaveGroup,
     inviteUser,
     banUser,
+    getGroupMembers,
 };
